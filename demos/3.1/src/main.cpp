@@ -83,12 +83,14 @@ int run()
     mvp_location = glGetUniformLocation(program, "u_mvp");
     vpos_location = glGetAttribLocation(program, "a_pos");
     vcol_location = glGetAttribLocation(program, "a_color");
+    float rotate_eulerAngle = 0.0f;
 
     //file:main.cpp line:122
     while (!glfwWindowShouldClose(window))
     {
         float ratio;
         int width, height;
+        rotate_eulerAngle += 1;
         glm::mat4 model,view, projection, mvp;
         //获取画面宽高
         glfwGetFramebufferSize(window, &width, &height);
@@ -98,7 +100,7 @@ int run()
         glClearColor(49.f/255,77.f/255,121.f/255,1.f);
         //坐标系变换
         glm::mat4 trans = glm::translate(glm::vec3(0,0,0)); //不移动顶点坐标;
-        glm::mat4 rotation = glm::eulerAngleYXZ(glm::radians(0.f), glm::radians(0.f), glm::radians(0.f)); //使用欧拉角旋转;
+        glm::mat4 rotation = glm::eulerAngleYXZ(glm::radians(rotate_eulerAngle), glm::radians(rotate_eulerAngle), glm::radians(rotate_eulerAngle)); //使用欧拉角旋转;
         glm::mat4 scale = glm::scale(glm::vec3(2.0f, 2.0f, 2.0f)); //缩放;
         model = trans*scale*rotation;
         view = glm::lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0,0), glm::vec3(0, 1, 0));
@@ -116,7 +118,7 @@ int run()
             //上传mvp矩阵
             glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
             //上传顶点数据并进行绘制
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         glfwSwapBuffers(window);
         glfwPollEvents();
