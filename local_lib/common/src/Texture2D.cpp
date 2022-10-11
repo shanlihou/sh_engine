@@ -37,13 +37,13 @@ Texture2D* Texture2D::LoadFromFile(std::string& image_file_path)
             }
         }
     }
-    
+    cout << "current format" << image_data_format << "t format" << texture2d->gl_texture_format_ << endl;
     //1. 通知显卡创建纹理对象，返回句柄;
     glGenTextures(1, &(texture2d->gl_texture_id_));
     //2. 将纹理绑定到特定纹理目标;
     glBindTexture(GL_TEXTURE_2D, texture2d->gl_texture_id_);
     //3. 将图片rgb数据上传到GPU;
-    glTexImage2D(GL_TEXTURE_2D, 0, image_data_format, texture2d->width_, texture2d->height_, 0, image_data_format, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, texture2d->gl_texture_format_, texture2d->width_, texture2d->height_, 0, image_data_format, GL_UNSIGNED_BYTE, data);
     //4. 指定放大，缩小滤波方式，线性滤波，即放大缩小的插值方式;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
