@@ -3,24 +3,33 @@
 //
 #ifndef UNTITLED_SHADERSOURCE_H
 #define UNTITLED_SHADERSOURCE_H
-//顶点着色器代码
+
 static const char* vertex_shader_text =
         "#version 110\n"
+
         "uniform mat4 u_mvp;\n"
+
         "attribute  vec3 a_pos;\n"
         "attribute  vec4 a_color;\n"
+        "attribute  vec2 a_uv;\n"
+
         "varying vec4 v_color;\n"
+        "varying vec2 v_uv;\n"
+
         "void main()\n"
         "{\n"
         "    gl_Position = u_mvp * vec4(a_pos, 1.0);\n"
         "    v_color = a_color;\n"
+        "    v_uv = a_uv;\n"
         "}\n";
-//片段着色器代码
+
 static const char* fragment_shader_text =
         "#version 110\n"
+        "uniform sampler2D u_diffuse_texture;"
         "varying vec4 v_color;\n"
+        "varying vec2 v_uv;\n"
         "void main()\n"
         "{\n"
-        "    gl_FragColor = v_color;\n"
+        "    gl_FragColor = texture2D(u_diffuse_texture,v_uv);\n"
         "}\n";
 #endif //UNTITLED_SHADERSOURCE_H

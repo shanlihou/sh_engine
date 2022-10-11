@@ -55,12 +55,33 @@ void compile_shader()
     glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
     //编译Shader
     glCompileShader(vertex_shader);
+    //获取编译结果
+    GLint compile_status=GL_FALSE;
+    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &compile_status);
+    if (compile_status == GL_FALSE)
+    {
+        GLchar message[256];
+        glGetShaderInfoLog(vertex_shader, sizeof(message), 0, message);
+        cout<<"compile vs error:"<<message<<endl;
+    }
+
     //创建片段Shader
     fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
     //指定Shader源码
     glShaderSource(fragment_shader, 1, &fragment_shader_text, NULL);
     //编译Shader
     glCompileShader(fragment_shader);
+    //获取编译结果
+    compile_status=GL_FALSE;
+    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &compile_status);
+    if (compile_status == GL_FALSE)
+    {
+        GLchar message[256];
+        glGetShaderInfoLog(fragment_shader, sizeof(message), 0, message);
+        cout<<"compile fs error:"<<message<<endl;
+    }
+
+
     //创建GPU程序
     program = glCreateProgram();
     //附加Shader
@@ -68,6 +89,15 @@ void compile_shader()
     glAttachShader(program, fragment_shader);
     //Link
     glLinkProgram(program);
+    //获取编译结果
+    GLint link_status=GL_FALSE;
+    glGetProgramiv(program, GL_LINK_STATUS, &link_status);
+    if (link_status == GL_FALSE)
+    {
+        GLchar message[256];
+        glGetProgramInfoLog(program, sizeof(message), 0, message);
+        cout<<"link error:"<<message<<endl;
+    }
 }
 
 
@@ -90,7 +120,7 @@ int run()
     {
         float ratio;
         int width, height;
-        rotate_eulerAngle += 1;
+        rotate_eulerAngle += 0.1;
         glm::mat4 model,view, projection, mvp;
         //获取画面宽高
         glfwGetFramebufferSize(window, &width, &height);
@@ -109,6 +139,8 @@ int run()
         //指定GPU程序(就是指定顶点着色器、片段着色器)
         glUseProgram(program);
         {
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);//开启背面剔除
             //启用顶点Shader属性(a_pos)，指定与顶点坐标数据进行关联
             glEnableVertexAttribArray(vpos_location);
             glVertexAttribPointer(vpos_location, 3, GL_FLOAT, false, sizeof(glm::vec3), kPositions);

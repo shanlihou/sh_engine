@@ -14,6 +14,7 @@ int main(void)
 {
     std::cout <<"hello";
     DEMO_5_4::run();
+    // DEMO_3_1::run();
     // GLFWwindow* window;
     // /* 初始化glfw */
     // if (!glfwInit())

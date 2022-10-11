@@ -25,7 +25,7 @@ static void error_callback(int error, const char* description)
 
 GLFWwindow* window;
 GLuint vertex_shader, fragment_shader, program;
-GLint mvp_location, vpos_location, vcol_location;
+GLint mvp_location, vpos_location, vcol_location, a_uv_location, u_diffuse_texture_location;
 
 void init_opengl()
 {
@@ -80,21 +80,23 @@ int run()
     //获取shader属性ID
     
     printf("im here\n");
-    // auto _texture = Texture2D::LoadFromFile(std::string("F:\\shgithub\\python\\sh_auto_hot_key\\pic\\guan_zhu.png"));
-    // delete _texture;
     init_opengl();
+    auto _texture = Texture2D::LoadFromFile(std::string("F:\\shgithub\\python\\sh_auto_hot_key\\pic\\guan_zhu.png"));
     compile_shader();
     mvp_location = glGetUniformLocation(program, "u_mvp");
     vpos_location = glGetAttribLocation(program, "a_pos");
     vcol_location = glGetAttribLocation(program, "a_color");
+    a_uv_location = glGetAttribLocation(program, "a_uv");
+    u_diffuse_texture_location = glGetUniformLocation(program, "u_diffuse_texture");
     float rotate_eulerAngle = 0.0f;
 
     //file:main.cpp line:122
+    printf("will window\n");
     while (!glfwWindowShouldClose(window))
     {
         float ratio;
         int width, height;
-        rotate_eulerAngle += 1;
+        rotate_eulerAngle += 0.1;
         glm::mat4 model,view, projection, mvp;
         //获取画面宽高
         glfwGetFramebufferSize(window, &width, &height);
@@ -113,20 +115,34 @@ int run()
         //指定GPU程序(就是指定顶点着色器、片段着色器)
         glUseProgram(program);
         {
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);//开启背面剔除
             //启用顶点Shader属性(a_pos)，指定与顶点坐标数据进行关联
             glEnableVertexAttribArray(vpos_location);
             glVertexAttribPointer(vpos_location, 3, GL_FLOAT, false, sizeof(glm::vec3), kPositions);
             //启用顶点Shader属性(a_color)，指定与顶点颜色数据进行关联
             glEnableVertexAttribArray(vcol_location);
             glVertexAttribPointer(vcol_location, 3, GL_FLOAT, false, sizeof(glm::vec4), kColors);
+
+            glEnableVertexAttribArray(a_uv_location);
+            glVertexAttribPointer(a_uv_location, 2, GL_FLOAT, false, sizeof(glm::vec2), kUvs);
+
             //上传mvp矩阵
             glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, _texture->gl_texture_id_);
+            glUniform1i(u_diffuse_texture_location, 0);
+
             //上传顶点数据并进行绘制
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    delete _texture;
+    std::cout << "end" <<std::endl;
     return 0;
 }
 }
