@@ -74,14 +74,19 @@ void compile_shader()
 
 
 namespace DEMO_5_4 {
-int run() 
+int run() {
+    init_opengl();
+    Texture2D::CompressImageFile(std::string("F:\\shgithub\\python\\sh_auto_hot_key\\pic\\guan_zhu.png"), std::string("F:\\shpic\\gpu.cpt"));
+    return 0;
+}
+int run2() 
 {
     //file:main.cpp line:118
     //获取shader属性ID
     
     printf("im here\n");
     init_opengl();
-    auto _texture = Texture2D::LoadFromFile(std::string("F:\\shgithub\\python\\sh_auto_hot_key\\pic\\guan_zhu.png"));
+    auto _texture = Texture2D::LoadFromFile(std::string("F:\\shpic\\gpu.cpt"));
     compile_shader();
     mvp_location = glGetUniformLocation(program, "u_mvp");
     vpos_location = glGetAttribLocation(program, "a_pos");

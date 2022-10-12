@@ -3,11 +3,24 @@
 #include "stb/stb_image.h"
 #include <iostream>
 #include <fstream>
+#include "gl/glext.h"
 
 using namespace std;
 
-Texture2D* Texture2D::LoadFromFile(std::string& image_file_path)
-{
+
+bool checkGpuFileType(std::string& image_file_path) {
+    ifstream input_file_stream(image_file_path, ios::in | ios::binary);
+    TpcFileHead file_header;
+    input_file_stream.read((char*)&file_header, sizeof(TpcFileHead));
+    if (input_file_stream.gcount() > 3 && strncmp(file_header.type_, "cpt", 3) == 0) {
+        return true;
+    }
+
+    return false;
+}
+
+
+Texture2D* loadFromCommonPic(std::string& image_file_path) {
     Texture2D* texture2d = new Texture2D();
     stbi_set_flip_vertically_on_load(true);//翻转图片，解析出来的图片数据从左下角开始，这是因为OpenGL的纹理坐标起始点为左下角。
     int channels_in_file;//通道数
@@ -26,13 +39,13 @@ Texture2D* Texture2D::LoadFromFile(std::string& image_file_path)
             case 3:
             {
                 image_data_format = GL_RGB;
-                texture2d->gl_texture_format_ = GL_COMPRESSED_RGB;
+                texture2d->gl_texture_format_ = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
                 break;
             }
             case 4:
             {
                 image_data_format = GL_RGBA;
-                texture2d->gl_texture_format_ = GL_COMPRESSED_RGBA;
+                texture2d->gl_texture_format_ = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
                 break;
             }
         }
@@ -50,6 +63,45 @@ Texture2D* Texture2D::LoadFromFile(std::string& image_file_path)
     //释放图片文件内存
     stbi_image_free(data);
     return texture2d;
+}
+
+Texture2D* loadFromGpuPic(string& image_file_path) {
+    Texture2D* _texture2d = new Texture2D();
+    ifstream input_file_stream(image_file_path, ios::in | ios::binary);
+    TpcFileHead file_header;
+    input_file_stream.read((char*)&file_header, sizeof(TpcFileHead));
+
+    unsigned char* data = new unsigned char[file_header.compress_size_];
+    input_file_stream.read((char*) data, file_header.compress_size_);
+    input_file_stream.close();
+    _texture2d->gl_texture_format_ = file_header.gl_texture_format_;
+    _texture2d->width_ = file_header.width_;
+    _texture2d->height_ = file_header.height_;
+
+    glGenTextures(1, &(_texture2d->gl_texture_id_));
+    glBindTexture(GL_TEXTURE_2D, _texture2d->gl_texture_id_);
+
+    glCompressedTexImage2D(GL_TEXTURE_2D, 0, _texture2d->gl_texture_format_, 
+            _texture2d->width_, _texture2d->height_, 0, 
+            file_header.compress_size_, data);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    delete []data;
+
+    return _texture2d;
+}
+
+
+Texture2D* Texture2D::LoadFromFile(std::string& image_file_path)
+{
+    if (checkGpuFileType(image_file_path)) {
+        cout << "load from gpu\n";
+        return loadFromGpuPic(image_file_path);
+    }   
+
+    cout << "load from image\n";
+    return loadFromCommonPic(image_file_path);
 }
 
 void Texture2D::CompressImageFile(std::string& image_file_path, std::string& save_image_file_path) {
@@ -70,10 +122,10 @@ void Texture2D::CompressImageFile(std::string& image_file_path, std::string& sav
 
     //4. 从GPU中，将显存中保存的压缩好的纹理数据，下载到内存
     void* img=malloc(compress_size);
-    glGetCompressedTexImage(GL_TEXTURE_2D,0,img);
+    glGetCompressedTexImage(GL_TEXTURE_2D, 0, img);
 
     //5. 保存为文件
-    ofstream output_file_stream(save_image_file_path,ios::out | ios::binary);
+    ofstream output_file_stream(save_image_file_path, ios::out | ios::binary);
 
     TpcFileHead cpt_file_head;
     cpt_file_head.type_[0]='c';
