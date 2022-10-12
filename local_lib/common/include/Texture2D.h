@@ -10,6 +10,7 @@ public:
     {};
     static Texture2D *LoadFromFile(std::string&);
     static void CompressImageFile(std::string&, std::string&);
+
 public:
     int width_;
     int height_;
