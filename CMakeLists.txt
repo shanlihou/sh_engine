@@ -23,6 +23,7 @@ target_link_libraries(${PROJECT_NAME}
     glfw3.lib
     lib::demo3_1
     lib::demo5_4
+    lib::demo6_1
     lib::glfw
     glm::glm
 )
