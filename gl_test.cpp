@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "demo_6_1.h"
+#include "demo_7_1.h"
 
 // int main()
 // {
@@ -12,7 +12,7 @@
 int main(void)
 {
     std::cout <<"hello";
-    DEMO_6_1::run();
+    DEMO_7_1::run();
     // DEMO_3_1::run();
     // GLFWwindow* window;
     // /* 初始化glfw */

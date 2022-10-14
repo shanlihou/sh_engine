@@ -6,16 +6,7 @@
 #define UNTITLED_VERTEXDATA_H
 #include <glm/glm.hpp>
 #include <vector>
-
-struct Vertex {
-    glm::vec3 pos_;
-    glm::vec4 color_;
-    glm::vec2 uv_;
-
-    bool operator==(Vertex const& v2) const{
-        return pos_ == v2.pos_ && color_ == v2.color_ && uv_ == v2.uv_;
-    };
-};
+#include "Vertex.h"
 
 
 static const Vertex kVertexs[36] ={
