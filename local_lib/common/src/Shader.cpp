@@ -1,11 +1,14 @@
 #include <fstream>
 #include "Shader.h"
+#include "Const.h"
+#include "Utils.h"
 
 
 
 void Shader::loadShader(std::string &path) {
-    std::string _vs_path = path + ".vs";
-    std::string _fs_path = path + ".fs";
+    std::string _path = SHILY_UTILS::toResourcePath(path);
+    std::string _vs_path = _path + ".vs";
+    std::string _fs_path = _path + ".fs";
     
     std::ifstream _vs_input(_vs_path);
     vertex_shader_source_ = std::string(std::istreambuf_iterator<char>(_vs_input), 
@@ -39,3 +42,29 @@ void Shader::createGPUProgram() {
     glLinkProgram(program_);
 
 }
+
+ShaderManager* ShaderManager::instance_ = NULL;
+
+ShaderManager* ShaderManager::instance() {
+    if (instance_ == NULL) {
+        instance_ = new ShaderManager();
+    }
+
+    return instance_;
+}
+
+
+std::shared_ptr<Shader> ShaderManager::find(std::string &path) {
+    auto _ret = shaders_.find(path);
+    if (_ret != shaders_.end()) {
+        return _ret->second;
+    }
+
+    auto _ptr = std::make_shared<Shader>();
+    _ptr->loadShader(path);
+    _ptr->createGPUProgram();
+    shaders_[path] = _ptr;
+    return _ptr;
+}
+
+

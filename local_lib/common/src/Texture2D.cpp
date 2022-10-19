@@ -4,6 +4,8 @@
 #include <iostream>
 #include <fstream>
 #include "gl/glext.h"
+#include "Const.h"
+#include "Utils.h"
 
 using namespace std;
 
@@ -95,13 +97,15 @@ Texture2D* loadFromGpuPic(string& image_file_path) {
 
 Texture2D* Texture2D::LoadFromFile(std::string& image_file_path)
 {
-    if (checkGpuFileType(image_file_path)) {
+    std::string _path = SHILY_UTILS::toResourcePath(image_file_path);
+
+    if (checkGpuFileType(_path)) {
         cout << "load from gpu\n";
-        return loadFromGpuPic(image_file_path);
+        return loadFromGpuPic(_path);
     }   
 
     cout << "load from image\n";
-    return loadFromCommonPic(image_file_path);
+    return loadFromCommonPic(_path);
 }
 
 void Texture2D::CompressImageFile(std::string& image_file_path, std::string& save_image_file_path) {

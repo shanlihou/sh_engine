@@ -1,6 +1,6 @@
 # MathFunctions/CMakeLists.txt
 project(common)
-add_library(${PROJECT_NAME} src/Texture2D.cpp src/Mesh.cpp src/Vertex.cpp src/Shader.cpp)
+add_library(${PROJECT_NAME} src/Texture2D.cpp src/Mesh.cpp src/Vertex.cpp src/Shader.cpp src/Material.cpp src/Utils.cpp)
 add_library(lib::common ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME}
